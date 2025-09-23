@@ -13,7 +13,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py313"    # 你要支援的 Python 版本
+target-version = "py313"
 line-length = 100
 extend-exclude = ["deployment", ".venv"]
 
@@ -24,3 +24,6 @@ ignore = []
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.ruff.lint.isort]
+known-first-party = ["agent_brain"]
