@@ -1,43 +1,23 @@
-from collections.abc import AsyncIterator
-from enum import Enum
-
-from agent_brain.models import Action, Message, Role
-from agent_brain.thinking_net.base import State
+from agent_brain.models import Message, Role
 from agent_brain.tool import BaseTool
 
+from .base import Memory
 
-class MemoryEnv:
-    def __init__(self, states: dict[Enum, State], tools: list[BaseTool]) -> None:
-        self.history: list[Message] = []
-        self.done: bool = False
-        self.next_action: Action | None = None
-        self.state: State = list(states.values())[0]
-        self.state_map: dict[Enum, State] = states
-        self.available_tools: dict[str, BaseTool] = {tool.name: tool for tool in tools}
 
-    async def step(self) -> AsyncIterator[str]:
-        async for output in self.state.run(self):
-            yield output
+class MessagesMemory(Memory):
+    def __init__(self, tools: list[BaseTool]) -> None:
+        self._history: list[Message] = []
+        self._goal: Message | None = None
+        super().__init__(tools)
 
-    def set_state(self, next_type: Enum):
-        self.state.on_exit(self)
-        self.state = self.state_map[next_type]
-        self.state.on_enter(self)
+    async def set_goal(self, goal: str) -> None:
+        self._goal = Message(role=Role.USER, content=goal)
 
-    async def act(self) -> str:
-        if self.next_action:
-            action = self.next_action
-            if tool := self.available_tools.get(action.name):
-                result = await tool.execute(**action.args)
-                return result
+    async def update(self, messages: list[Message]) -> None:
+        self._history.extend(messages)
 
-            return f"Tool '{action.name}' not found."
-        return "No action to perform."
+    async def goal(self) -> list[Message]:
+        return [self._goal] if self._goal else []
 
-    def list_tools(self) -> str:
-        return ",".join([str(tool.to_dict()) for tool in self.available_tools.values()])
-
-    def start_task(self, task: str) -> None:
-        self.history.append(Message(role=Role.USER, content=task))
-        self.done = False
-        self.next_action = None
+    async def dump(self) -> list[Message]:
+        return self._history

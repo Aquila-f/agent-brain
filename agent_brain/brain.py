@@ -1,7 +1,7 @@
 import asyncio
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterator
 
-from agent_brain.memory import MemoryEnv
+from agent_brain.memory import MessagesMemory
 from agent_brain.thinking_net import create_react_net
 from agent_brain.tool import BaseTool
 
@@ -24,27 +24,37 @@ class AddTwoNumbersTool(BaseTool):
     async def execute(self, **kwargs) -> str:
         a = kwargs.get("a", 0)
         b = kwargs.get("b", 0)
-        return f"Sum: {a + b}"
+        return f"tool result: {a} + {b} = {a + b}"
 
 
 class Brain:
-    def __init__(self) -> None:
+    def __init__(self, tools: list[BaseTool]) -> None:
         self.thinking_net = create_react_net()
-        self.env = MemoryEnv(states=self.thinking_net, tools=[AddTwoNumbersTool()])
+        self.state = list(self.thinking_net.values())[0]
+        self.memory = MessagesMemory(tools=tools)
         self.loop_limit = 10
 
-    async def answer(self, task: str) -> AsyncGenerator[str]:
-        self.env.start_task(task)
-        loop_count = 0
-        while not self.env.done and loop_count < self.loop_limit:
-            async for chunk in self.env.step():
+    async def _step(self) -> AsyncIterator[str]:
+        self.state.on_enter(self.memory)
+        async for chunk in self.state.run(self.memory):
+            yield chunk
+        self.state.on_exit(self.memory)
+
+        next_state_enum = await self.state.next_state(self.memory)
+        self.state = self.thinking_net[next_state_enum]
+
+    async def answer(self, task: str) -> AsyncIterator[str]:
+        await self.memory.set_goal(task)
+
+        while not self.memory.done and self.loop_limit > 0:
+            async for chunk in self._step():
                 yield chunk
-            loop_count += 1
+            self.loop_limit -= 1
 
 
 if __name__ == "__main__":
-    brain = Brain()
-    task = "What is the sum of 123 and 456?"
+    brain = Brain(tools=[AddTwoNumbersTool()])
+    task = "What is the value of 12345 + 67890 + 999999?"
 
     async def main() -> None:
         async for chunk in brain.answer(task):

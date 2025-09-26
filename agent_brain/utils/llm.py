@@ -6,7 +6,9 @@ client = AsyncOpenAI()
 
 
 async def stream_response(model_name: str, messages: list[Message]):
-    stream = await client.chat.completions.create(model=model_name, messages=messages, stream=True)
+    stream = await client.chat.completions.create(
+        model=model_name, messages=messages, stream=True, temperature=0.0
+    )
 
     async for chunk in stream:
         yield chunk.choices[0].delta.content
@@ -21,7 +23,7 @@ if __name__ == "__main__":
             Message(role=Role.SYSTEM, content="You are a helpful assistant."),
             Message(role=Role.USER, content="Hello! How are you?"),
         ]
-        async for chunk in stream_response("gpt-4.1-nano", messages):
+        async for chunk in stream_response("gpt-4.1-mini", messages):
             print(chunk, end="", flush=True)
 
     asyncio.run(main())

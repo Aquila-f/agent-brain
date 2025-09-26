@@ -1,24 +1,19 @@
-from enum import Enum, auto
+from enum import Enum
+
+from ..base import State
+from .net import ReAct
 
 
-class StateType(Enum):
-    REASONING = auto()
-    ACTION = auto()
-    ANSWER = auto()
+def create_net() -> dict[Enum, State]:
+    from .action import ActionState
+    from .answer import AnswerState
+    from .reasoning import ReasoningState
 
-
-from ..base import State  # noqa: E402
-from .action import ActionState  # noqa: E402
-from .answer import AnswerState  # noqa: E402
-from .reasoning import ReasoningState  # noqa: E402
-
-
-def create_states() -> dict[Enum, State]:
     return {
-        StateType.REASONING: ReasoningState(),
-        StateType.ACTION: ActionState(),
-        StateType.ANSWER: AnswerState(),
+        ReAct.REASONING: ReasoningState(),
+        ReAct.ACTION: ActionState(),
+        ReAct.ANSWER: AnswerState(),
     }
 
 
-__all__ = ["create_states"]
+__all__ = ["create_net"]

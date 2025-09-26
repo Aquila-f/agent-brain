@@ -1,21 +1,22 @@
 from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING
+from enum import Enum
 
+from agent_brain.memory import Memory
 from agent_brain.models import Message, Role
 
 from ..base import State
-from . import StateType
-
-if TYPE_CHECKING:
-    from agent_brain.memory import MemoryEnv
+from .net import ReAct
 
 
 class ActionState(State):
-    async def _run(self, env: "MemoryEnv") -> AsyncIterator[str]:
-        if env.next_action:
-            result = await env.act()
-            env.history.append(Message(role=Role.USER, content=str(result)))
+    async def run(self, memory: "Memory") -> AsyncIterator[str]:
+        if not memory.next_action:
+            return
+
+        if tool := memory.get_tool(memory.next_action.name):
+            result = await tool.execute(**memory.next_action.args)
+            await memory.update([Message(role=Role.ACT, content=str(result))])
         yield "\n"
 
-    async def _transition(self, env: "MemoryEnv") -> None:
-        env.set_state(StateType.REASONING)
+    async def next_state(self, memory: "Memory") -> Enum:
+        return ReAct.REASONING

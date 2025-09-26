@@ -1,17 +1,15 @@
 from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING
+from enum import Enum
 
+from agent_brain.memory import Memory
 from agent_brain.models import Action, Message, Role
 from agent_brain.utils.llm import stream_response
 from agent_brain.utils.parser import parse_json_response
 
 from ..base import State
-from . import StateType
+from .net import ReAct
 
-if TYPE_CHECKING:
-    from agent_brain.memory import MemoryEnv
-
-REASONING_MODEL = "gpt-4.1"
+REASONING_MODEL = "gpt-4.1-mini"
 
 
 SYSTEM_PROMPT = """You are an AI assistant that predicts the most precise next action in a scenario.
@@ -38,32 +36,35 @@ Important:
 """  # noqa: E501
 
 
-async def get_messages(env: "MemoryEnv") -> list[Message]:
+async def get_messages(memory: "Memory") -> list[Message]:
     prompt = SYSTEM_PROMPT.format(
-        tools=env.list_tools(),
+        tools=memory.list_tools(),
         action_format=Action.model_json_schema(),
     )
-    return [Message(role=Role.SYSTEM, content=prompt), *env.history]
+    return [
+        Message(role=Role.SYSTEM, content=prompt),
+        *await memory.goal(),
+        *await memory.dump(),
+    ]
 
 
 class ReasoningState(State):
-    async def _run(self, env: "MemoryEnv") -> AsyncIterator[str]:
+    async def run(self, memory: "Memory") -> AsyncIterator[str]:
         generated_response = ""
-        messages = await get_messages(env)
+        messages = await get_messages(memory)
         async for chunk in stream_response(model_name=REASONING_MODEL, messages=messages):
             if chunk:
                 generated_response += chunk
                 yield chunk
 
-        env.history.append(Message(role=Role.ASSISTANT, content=generated_response))
+        await memory.update([Message(role=Role.ASSISTANT, content=generated_response)])
 
         if action := parse_json_response(generated_response):
-            env.next_action = Action(**action)
+            memory.next_action = Action(**action)
         else:
-            env.next_action = None
+            memory.next_action = None
 
-    async def _transition(self, env: "MemoryEnv") -> None:
-        if env.next_action:
-            env.set_state(StateType.ACTION)
-        else:
-            env.set_state(StateType.ANSWER)
+    async def next_state(self, memory: "Memory") -> Enum:
+        if memory.next_action:
+            return ReAct.ACTION
+        return ReAct.ANSWER

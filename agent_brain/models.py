@@ -8,6 +8,7 @@ class Role(str, Enum):
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
+    ACT = "system"
 
 
 class Message(BaseModel):

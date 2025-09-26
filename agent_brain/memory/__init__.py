@@ -1,3 +1,4 @@
-from .memory import MemoryEnv
+from .base import Memory
+from .memory import MessagesMemory
 
-__all__ = ["MemoryEnv"]
+__all__ = ["Memory", "MessagesMemory"]
