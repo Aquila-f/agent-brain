@@ -22,6 +22,13 @@ class Brain:
         self.state = list(self.net.values())[0]
         self.loop_limit = 10
 
+    async def reset(self) -> None:
+        self.state = list(self.net.values())[0]
+        self.memory.done = False
+        self.memory.next_action = None
+        self.loop_limit = 10
+        await self.memory.set_goal("")  # reset memory content
+
     async def _step(self) -> AsyncIterator[str]:
         self.state.on_enter(self.memory)
         async for chunk in self.state.run(self.memory):
@@ -32,6 +39,7 @@ class Brain:
         self.state = self.net[next_state_enum]
 
     async def answer(self, task: str) -> AsyncIterator[str]:
+        await self.reset()
         await self.memory.set_goal(task)
 
         while not self.memory.done and self.loop_limit > 0:
