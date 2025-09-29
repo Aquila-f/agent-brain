@@ -2,10 +2,9 @@ from collections.abc import AsyncIterator
 from enum import Enum
 
 from agent_brain.memory import Memory, MessagesMemory
-from agent_brain.thinking_net import create_react_net
+from agent_brain.models import AIMessage
+from agent_brain.net import State, create_react_net
 from agent_brain.tool import BaseTool
-
-from .thinking_net import State
 
 NET_MAP = {"ReAct": create_react_net()}
 MEM_MAP = {"Messages": MessagesMemory}
@@ -26,7 +25,7 @@ class Brain:
     async def _step(self) -> AsyncIterator[str]:
         self.state.on_enter(self.memory)
         async for chunk in self.state.run(self.memory):
-            yield chunk
+            yield AIMessage(type=type(self.state).__name__, message=chunk).model_dump_json()
         self.state.on_exit(self.memory)
 
         next_state_enum = await self.state.next_state(self.memory)
