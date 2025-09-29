@@ -13,6 +13,7 @@ dependencies = [
 dev = [
     "pre-commit>=4.3.0",
     "ruff>=0.13.1",
+    "streamlit>=1.50.0",
 ]
 
 [tool.ruff]
