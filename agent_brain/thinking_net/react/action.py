@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncIterator
 from enum import Enum
 
@@ -16,7 +17,10 @@ class ActionState(State):
         if tool := memory.get_tool(memory.next_action.name):
             result = await tool.execute(**memory.next_action.args)
             await memory.update([Message(role=Role.ACT, content=str(result))])
-        yield "\n"
+
+        for chunk in str(result):
+            yield chunk
+            await asyncio.sleep(0.01)
 
     async def next_state(self, memory: "Memory") -> Enum:
         return ReAct.REASONING

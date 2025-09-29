@@ -1,4 +1,3 @@
-import asyncio
 from collections.abc import AsyncIterator
 from enum import Enum
 
@@ -15,12 +14,12 @@ MEM_MAP = {"Messages": MessagesMemory}
 class Brain:
     def __init__(
         self,
-        thinking_net: str | dict[Enum, State],
-        memory_struct: str | Memory,
+        net: str | dict[Enum, State],
+        memory: str | Memory,
         tools: list[BaseTool],
     ) -> None:
-        self.net = self._create_net(thinking_net)
-        self.memory = self._create_memory(memory_struct, tools)
+        self.net = self._create_net(net)
+        self.memory = self._create_memory(memory, tools)
         self.state = list(self.net.values())[0]
         self.loop_limit = 10
 
@@ -54,35 +53,3 @@ class Brain:
                 raise ValueError(f"Unknown memory struct: {memory_struct}")
             return MEM_MAP[memory_struct](tools=tools)
         return memory_struct
-
-
-class AddTwoNumbersTool(BaseTool):
-    def __init__(self) -> None:
-        super().__init__(
-            name="add_two_numbers",
-            description="Add two numbers.",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "a": {"type": "number", "description": "The first number."},
-                    "b": {"type": "number", "description": "The second number."},
-                },
-                "required": ["a", "b"],
-            },
-        )
-
-    async def execute(self, **kwargs) -> str:
-        a = kwargs.get("a", 0)
-        b = kwargs.get("b", 0)
-        return f"tool result: {a} + {b} = {a + b}"
-
-
-if __name__ == "__main__":
-    brain = Brain(thinking_net="ReAct", memory_struct="Messages", tools=[AddTwoNumbersTool()])
-    task = "What is the value of 12345 + 67890 + 999999?"
-
-    async def main() -> None:
-        async for chunk in brain.answer(task):
-            print(chunk, end="", flush=True)
-
-    asyncio.run(main())
