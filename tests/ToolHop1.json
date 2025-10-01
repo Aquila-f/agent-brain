@@ -1,0 +1,242 @@
+[
+    {
+        "id": 0,
+        "question": "How many letters (exclude the first and last) are there in the first name of the person who designed and built the park which links Salisbury Woodland Gardens with a zoo?",
+        "answer": "4",
+        "sub_task": {
+            "Salisbury Woodland Gardens links a zoo with which park?": "Stanley Park, Blackpool",
+            "Stanley Park is designed and built under the watchful eye of who?": "Thomas Mawson",
+            "What is the first name of Thomas Mawson?": "Thomas",
+            "How many letters (exclude the first and last) are there in Thomas?": "4"
+        },
+        "tools": {
+            "Salisbury Woodland Gardens links a zoo with which park?": {
+                "name": "geo_relationship_finder",
+                "description": "An advanced tool for discovering and analyzing relationships between geographical locations and various types of landmarks and entities. It offers comprehensive insights into connections between specified locations and nearby entities, with enhanced filtering and output options.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location_name": {
+                            "type": "string",
+                            "description": "The name of the primary location to find connections for."
+                        },
+                        "entity_types": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "park",
+                                    "zoo",
+                                    "garden",
+                                    "landmark",
+                                    "museum",
+                                    "historical_site"
+                                ],
+                                "description": "The types of entities to find connections with. Can specify multiple types."
+                            },
+                            "description": "The types of entities to find connections with. Defaults to ['park'] if not specified."
+                        },
+                        "radius": {
+                            "type": "number",
+                            "description": "The radius in kilometers within which to search for connected entities. Defaults to 5 km."
+                        },
+                        "filter_criteria": {
+                            "type": "object",
+                            "properties": {
+                                "popularity": {
+                                    "type": "string",
+                                    "enum": [
+                                        "high",
+                                        "medium",
+                                        "low"
+                                    ],
+                                    "description": "Filter results based on the popularity of the entities."
+                                },
+                                "historical_significance": {
+                                    "type": "boolean",
+                                    "description": "Filter results to include only historically significant entities."
+                                }
+                            },
+                            "description": "Optional criteria to filter the search results."
+                        },
+                        "output_format": {
+                            "type": "string",
+                            "enum": [
+                                "list",
+                                "detailed",
+                                "geojson"
+                            ],
+                            "description": "The format of the output. 'list' provides a simple list of connected entities, 'detailed' provides more information about each connection, and 'geojson' provides geospatial data format."
+                        }
+                    },
+                    "required": [
+                        "location_name"
+                    ]
+                }
+            },
+            "Stanley Park is designed and built under the watchful eye of who?": {
+                "name": "historical_figure_identifier",
+                "description": "An advanced tool designed to identify historical figures associated with specific events or constructions. It searches through historical databases and records to provide accurate and detailed information about the individuals involved, with enhanced search precision and customization options.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "event_name": {
+                            "type": "string",
+                            "description": "The name of the event or construction project, e.g., 'Stanley Park'."
+                        },
+                        "time_period": {
+                            "type": "string",
+                            "description": "The time period during which the event took place, to narrow down the search."
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The geographical location of the event, to provide context and improve search accuracy."
+                        },
+                        "name_variations": {
+                            "type": "boolean",
+                            "description": "Whether to consider variations and alternate spellings of names, default is true."
+                        },
+                        "output_format": {
+                            "type": "string",
+                            "enum": [
+                                "text",
+                                "json"
+                            ],
+                            "description": "The format of the output. Defaults to text (a descriptive answer)."
+                        },
+                        "figure_type": {
+                            "type": "string",
+                            "enum": [
+                                "political",
+                                "cultural",
+                                "scientific",
+                                "military",
+                                "other"
+                            ],
+                            "description": "The type of historical figure to identify, to refine the search."
+                        },
+                        "detail_level": {
+                            "type": "string",
+                            "enum": [
+                                "summary",
+                                "detailed"
+                            ],
+                            "description": "The level of detail in the output. Defaults to summary."
+                        },
+                        "significance_filter": {
+                            "type": "boolean",
+                            "description": "Whether to filter results by the significance of the figure's role in the event, default is false."
+                        },
+                        "information_source": {
+                            "type": "string",
+                            "description": "The source of information to use for the search, e.g., 'academic', 'public records'."
+                        }
+                    },
+                    "required": [
+                        "event_name"
+                    ]
+                }
+            },
+            "What is the first name of Thomas Mawson?": {
+                "name": "extract_first_name",
+                "description": "An advanced tool designed to extract the first name from a full name string. It supports various name formats, including those with middle names and initials, and offers extensive output customization options. The tool also includes enhanced error handling and validation features.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "full_name": {
+                            "type": "string",
+                            "description": "The full name from which the first name will be extracted. Supports names with middle names and initials."
+                        },
+                        "output_format": {
+                            "type": "string",
+                            "enum": [
+                                "string",
+                                "uppercase",
+                                "lowercase",
+                                "titlecase"
+                            ],
+                            "description": "The format of the output. Defaults to string (the first name as is)."
+                        },
+                        "handle_special_characters": {
+                            "type": "boolean",
+                            "description": "Indicates whether to handle special characters in the name. Defaults to false."
+                        },
+                        "error_handling": {
+                            "type": "string",
+                            "enum": [
+                                "ignore",
+                                "warn",
+                                "strict"
+                            ],
+                            "description": "The level of error handling for invalid input. Defaults to 'warn'."
+                        }
+                    },
+                    "required": [
+                        "full_name"
+                    ]
+                }
+            },
+            "How many letters (exclude the first and last) are there in Thomas?": {
+                "name": "count_letters",
+                "description": "An advanced tool for counting the number of letters in a given string. It provides enhanced customization options to ignore specific characters, positions, or even entire words, and offers multiple output formats for diverse use cases.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "input": {
+                            "type": "string",
+                            "description": "The string whose letters are to be counted."
+                        },
+                        "ignore_characters": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "Characters to be ignored in the count, default is none."
+                            }
+                        },
+                        "ignore_position": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "first",
+                                    "last",
+                                    "even",
+                                    "odd"
+                                ],
+                                "description": "Positions to be ignored in the count, default is none. Can now ignore even or odd positions."
+                            }
+                        },
+                        "ignore_words": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "Words to be ignored in the count, default is none."
+                            }
+                        },
+                        "output_format": {
+                            "type": "string",
+                            "enum": [
+                                "integer",
+                                "text",
+                                "json"
+                            ],
+                            "description": "The format of the output, either as an integer, text, or JSON. Defaults to integer."
+                        }
+                    },
+                    "required": [
+                        "input"
+                    ]
+                }
+            }
+        },
+        "functions": [
+            "def geo_relationship_finder(location_name, entity_types=['park'], radius=5, filter_criteria=None, output_format='list'):\n    \"\"\"\n    Finds and analyzes relationships between a specified location and nearby entities.\n\n    Parameters:\n    - location_name (str): The name of the primary location to find connections for.\n    - entity_types (list of str): The types of entities to find connections with. Defaults to ['park'].\n    - radius (float): The radius in kilometers within which to search for connected entities. Defaults to 5 km.\n    - filter_criteria (dict): Optional criteria to filter the search results.\n    - output_format (str): The format of the output. Can be 'list', 'detailed', or 'geojson'.\n\n    Returns:\n    - dict: A dictionary containing the results of the search.\n    \"\"\"\n    # Error handling for required parameter\n    if not location_name:\n        return {'error': 'location_name is required.'}\n\n    # Error handling for parameter types\n    if not isinstance(location_name, str):\n        return {'error': 'location_name must be a string.'}\n    if not isinstance(entity_types, list) or not all(isinstance(e, str) for e in entity_types):\n        return {'error': 'entity_types must be a list of strings.'}\n    if not isinstance(radius, (int, float)):\n        return {'error': 'radius must be a number.'}\n    if filter_criteria and not isinstance(filter_criteria, dict):\n        return {'error': 'filter_criteria must be a dictionary.'}\n    if output_format not in ['list', 'detailed', 'geojson']:\n        return {'error': 'Invalid output_format. Must be one of: list, detailed, geojson.'}\n\n    # Simulated logic for finding connections\n    # For the purpose of this example, we simulate the connection\n    if location_name == 'Salisbury Woodland Gardens' and 'zoo' in entity_types:\n        result = {\n            'connected_entities': [\n                {'name': 'Stanley Park, Blackpool', 'type': 'park'}\n            ]\n        }\n    else:\n        result = {'connected_entities': []}\n\n    # Return results based on output format\n    if output_format == 'list':\n        return {'entities': [entity['name'] for entity in result['connected_entities']]}\n    elif output_format == 'detailed':\n        return {'entities': result['connected_entities']}\n    elif output_format == 'geojson':\n        # Simulated geojson output\n        return {'type': 'FeatureCollection', 'features': []}\n\n    return {'error': 'Unexpected error occurred.'}",
+            "def historical_figure_identifier(event_name: str, time_period: str = '', location: str = '', name_variations: bool = True, output_format: str = 'text', figure_type: str = 'other', detail_level: str = 'summary', significance_filter: bool = False, information_source: str = '') -> str:\n    \"\"\"\n    Identifies historical figures associated with specific events or constructions.\n    \"\"\"\n    # Error handling for required parameter\n    if not event_name:\n        return 'Error: The event_name parameter is required.'\n    \n    # Simulated database of historical figures\n    historical_figures_db = {\n        'Stanley Park': 'Thomas Mawson'\n    }\n    \n    # Logic to identify the historical figure\n    figure = historical_figures_db.get(event_name, 'Unknown')\n    \n    # Constructing the output based on the output_format\n    if output_format == 'json':\n        return {'event_name': event_name, 'historical_figure': figure}\n    else:\n        return f'The historical figure associated with {event_name} is {figure}.'\n\n    # Additional error handling for other parameters can be added as needed\n    # For example, checking if output_format is valid, etc.",
+            "def extract_first_name(full_name, output_format='string', handle_special_characters=False, error_handling='warn'):\n    \"\"\"\n    Extracts the first name from a full name string.\n\n    Parameters:\n    - full_name (str): The full name from which the first name will be extracted.\n    - output_format (str): The format of the output ('string', 'uppercase', 'lowercase', 'titlecase').\n    - handle_special_characters (bool): Whether to handle special characters.\n    - error_handling (str): The level of error handling ('ignore', 'warn', 'strict').\n\n    Returns:\n    - str: The extracted first name in the specified format.\n    \"\"\"\n    if not isinstance(full_name, str) or not full_name.strip():\n        if error_handling == 'strict':\n            raise ValueError(\"Invalid full name input.\")\n        elif error_handling == 'warn':\n            print(\"Warning: Invalid full name input.\")\n        return \"\"\n\n    # Split the full name to extract the first name\n    name_parts = full_name.split()\n    if not name_parts:\n        if error_handling == 'strict':\n            raise ValueError(\"No valid name parts found.\")\n        elif error_handling == 'warn':\n            print(\"Warning: No valid name parts found.\")\n        return \"\"\n\n    first_name = name_parts[0]\n\n    # Handle special characters if required\n    if handle_special_characters:\n        first_name = ''.join(e for e in first_name if e.isalnum())\n\n    # Apply the output format\n    if output_format == 'uppercase':\n        first_name = first_name.upper()\n    elif output_format == 'lowercase':\n        first_name = first_name.lower()\n    elif output_format == 'titlecase':\n        first_name = first_name.title()\n\n    return first_name\n\n# Example usage:\n# print(extract_first_name('Thomas Mawson'))  # Expected output: 'Thomas'\n# print(extract_first_name('Thomas Mawson', output_format='uppercase'))  # Expected output: 'THOMAS'",
+            "def count_letters(input, ignore_characters=[], ignore_position=[], ignore_words=[], output_format='integer'):\n    # Validate input types\n    if not isinstance(input, str):\n        return {'error': 'Input must be a string.'}\n    if not isinstance(ignore_characters, list) or not all(isinstance(c, str) for c in ignore_characters):\n        return {'error': 'Ignore characters must be a list of strings.'}\n    if not isinstance(ignore_position, list) or not all(p in ['first', 'last', 'even', 'odd'] for p in ignore_position):\n        return {'error': 'Ignore position must be a list containing any of [\"first\", \"last\", \"even\", \"odd\"].'}\n    if not isinstance(ignore_words, list) or not all(isinstance(w, str) for w in ignore_words):\n        return {'error': 'Ignore words must be a list of strings.'}\n    if output_format not in ['integer', 'text', 'json']:\n        return {'error': 'Output format must be one of [\"integer\", \"text\", \"json\"].'}\n\n    # Split input into words and filter out ignored words\n    words = input.split()\n    filtered_words = [word for word in words if word not in ignore_words]\n\n    # Join filtered words back into a single string\n    filtered_input = ' '.join(filtered_words)\n\n    # Initialize letter count\n    letter_count = 0\n\n    # Iterate over each character in the filtered input\n    for i, char in enumerate(filtered_input):\n        # Check if character should be ignored\n        if char in ignore_characters:\n            continue\n        # Check if position should be ignored\n        if ('first' in ignore_position and i == 0) or \\\n           ('last' in ignore_position and i == len(filtered_input) - 1) or \\\n           ('even' in ignore_position and i % 2 == 0) or \\\n           ('odd' in ignore_position and i % 2 != 0):\n            continue\n        # Count the character if it's a letter\n        if char.isalpha():\n            letter_count += 1\n\n    # Format the output\n    if output_format == 'integer':\n        return letter_count\n    elif output_format == 'text':\n        return f'The number of letters is {letter_count}.'\n    elif output_format == 'json':\n        return {'letter_count': letter_count}\n\n# Example usage based on the question\nresult = count_letters('Thomas', output_format='integer')\n# Expected output: 4"
+        ],
+        "domain": "landscape architecture",
+        "answer_type": "number",
+        "previous_answer_type": "person"
+    }
+]

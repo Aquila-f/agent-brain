@@ -3,7 +3,53 @@ import json
 
 import streamlit as st
 
-from tests.add_multiply import brain
+from tests.add_multiply import BaseTool, Brain
+
+
+def tool_factory(tool_info: dict, function_code: list[str]):
+    class_name = "".join([w.capitalize() for w in tool_info["name"].split("_")]) + "Tool"
+
+    def __init__(self):
+        super(self.__class__, self).__init__(
+            name=tool_info["name"],
+            description=tool_info["description"],
+            input_schema=tool_info["parameters"],
+        )
+
+    async def execute(self, **kwargs):
+        for func_str in function_code:
+            if func_str.strip().startswith(f"def {tool_info['name']}"):
+                local_scope = {}
+                exec(func_str, {}, local_scope)
+                function_to_call = local_scope[tool_info["name"]]
+                return function_to_call(**kwargs)
+
+    attrs = {
+        "__init__": __init__,
+        "execute": execute,
+    }
+
+    return type(class_name, (BaseTool,), attrs)
+
+
+def load_tools_from_json(file_path: str) -> list[BaseTool]:
+    import json
+
+    with open(file_path, encoding="utf-8") as f:
+        tools_infos = json.load(f)
+
+    tools = []
+    for tool_info in tools_infos:
+        function_code = tool_info["functions"]
+        for sub_tool in tool_info["tools"].values():
+            tool_class = tool_factory(sub_tool, function_code)
+            tools.append(tool_class())
+    return tools
+
+
+tools = load_tools_from_json("./tests/ToolHop1.json")
+brain = Brain(net="ReAct", memory="Messages", tools=tools)
+
 
 st.title("🧠 Brain Streaming Chat (ReAct)")
 
